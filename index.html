@@ -5,6 +5,9 @@
 <title>Around the World</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; }
 
@@ -434,54 +437,250 @@ body::after {
 @keyframes answerPop { 0%{opacity:0;transform:scale(0.6)} 50%{opacity:1} 75%{transform:scale(1.08)} 90%{transform:scale(0.97)} 100%{opacity:1;transform:scale(1)} }
 .answer-pop { opacity: 0; animation: answerPop 0.22s ease-out forwards; }
 
-/* === Opening screen === */
+/* === Opening screen — "Departures" === */
+#openingScreen {
+  border-radius: 26px; padding: 22px 22px 26px;
+  display: flex; flex-direction: column; gap: 18px;
+  position: relative; overflow: hidden;
+}
+/* Soft aurora wash behind the glass */
+#openingScreen::before {
+  content: ''; position: absolute; inset: -40%;
+  background:
+    radial-gradient(circle at 28% 25%, rgba(96,165,250,0.14), transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(251,191,36,0.08), transparent 55%);
+  filter: blur(28px); pointer-events: none; z-index: 0;
+  animation: openingAurora 30s ease-in-out infinite;
+}
+@keyframes openingAurora {
+  0%,100% { transform: translate(0,0); }
+  50%     { transform: translate(2%,-2%); }
+}
+@media (prefers-reduced-motion: reduce) { #openingScreen::before { animation: none; } }
+
+#openingScreen > * { position: relative; z-index: 1; }
+
+/* === Title block === */
+.opening-title-block { text-align: center; margin-top: 6px; }
+
 .opening-pretitle {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 6px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.34em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5); margin: 0 0 12px;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.opening-pretitle::before, .opening-pretitle::after {
+  content: ''; height: 1px; width: 30px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
 }
 .opening-title {
-  font-size: 38px; font-weight: 800; color: rgba(255,255,255,0.97); text-align: center;
-  letter-spacing: -0.02em; text-shadow: 0 2px 20px rgba(0,0,30,0.6); margin-bottom: 6px;
-  line-height: 1.1;
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 96, "SOFT" 50;
+  font-size: 44px; font-weight: 800; color: rgba(255,255,255,0.98);
+  letter-spacing: -0.022em; line-height: 1.0; margin: 0 0 10px;
+  text-shadow: 0 2px 24px rgba(0,0,30,0.6);
+}
+.opening-title .ot-italic {
+  font-style: italic; font-weight: 700;
+  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 55%, #f59e0b 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-variation-settings: "opsz" 96, "SOFT" 90;
 }
 .opening-tagline {
-  font-size: 15px; color: rgba(255,255,255,0.6); text-align: center;
-  font-style: italic; margin-bottom: 0; line-height: 1.5;
+  font-size: 13.5px; color: rgba(255,255,255,0.6);
+  margin: 0; line-height: 1.55; max-width: 340px; margin-inline: auto;
+  letter-spacing: 0.005em;
 }
-#openingScreen {
-  border-radius: 26px; padding: 40px 28px 32px;
-  display: flex; flex-direction: column; gap: 28px;
+
+/* === Split-flap departure board === */
+.flap-board {
+  width: 100%;
+  padding: 0; margin: 0;
 }
-.opening-facts { display: flex; flex-direction: column; gap: 10px; }
-.opening-fact {
-  font-size: 14px; color: rgba(255,255,255,0.72); text-align: center;
-  line-height: 1.5; padding: 0 8px;
+.flap-board-chassis {
+  position: relative;
+  background:
+    linear-gradient(180deg, #3a3d44 0%, #2c2f36 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 14px 16px 14px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset,
+    0 10px 28px rgba(0,0,0,0.4),
+    0 2px 6px rgba(0,0,0,0.25);
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+/* Brief pulse when a schedule update happens — the board "wakes up" */
+.flap-board-chassis.is-updating {
+  border-color: rgba(255,255,255,0.22);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.16) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset,
+    0 10px 28px rgba(0,0,0,0.4),
+    0 2px 6px rgba(0,0,0,0.25),
+    0 0 32px rgba(134,239,172,0.22);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flap-board-chassis { transition: none; }
+}
+/* Decorative corner screws */
+.flap-board-screw {
+  position: absolute; width: 5px; height: 5px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,0.28), rgba(60,60,66,0.95) 55%, rgba(20,20,24,1) 100%);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(0,0,0,0.5);
+}
+.flap-board-screw-tl { top: 6px; left: 6px; }
+.flap-board-screw-tr { top: 6px; right: 6px; }
+.flap-board-screw-bl { bottom: 6px; left: 6px; }
+.flap-board-screw-br { bottom: 6px; right: 6px; }
+
+/* Header row */
+.flap-board-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 2px 2px 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed rgba(255,255,255,0.12);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+
+/* Body rows */
+.flap-board-rows { display: flex; flex-direction: column; gap: 5px; }
+.flap-row {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 8px;
+}
+.flap-cell-group { display: flex; gap: 1px; flex-shrink: 0; }
+
+/* When this is the boarding row, color status cells green */
+.flap-row.is-boarding .flap-status .flap-cell {
+  background: linear-gradient(180deg,
+    #166534 0%, #14532d 49.5%,
+    #052e16 50.5%, #14532d 100%);
+  color: #86efac;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5), 0 0 6px rgba(134,239,172,0.3);
+}
+
+/* Individual flap cell — the split-flap character */
+.flap-cell {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 11px; height: 18px;
+  background: linear-gradient(180deg,
+    #2c2c30 0%, #26262a 49.5%,
+    #1a1a1e 50.5%, #232327 100%);
+  border-radius: 1.5px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px; font-weight: 700; line-height: 1;
+  color: #fafaf7;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.45);
+  box-shadow:
+    0 0 0 0.5px rgba(0,0,0,0.55),
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 -1px 0 rgba(0,0,0,0.35) inset;
+  user-select: none;
+  overflow: hidden;
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+/* Hairline seam across the middle (the split) — half-pixel where supported */
+.flap-cell::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  height: 0.5px; background: rgba(0,0,0,0.55);
+  pointer-events: none;
+  transform: translateY(-0.25px);
+}
+/* Subtle inner highlight on the top half — sells the "two halves" depth */
+.flap-cell::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; bottom: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent);
+  pointer-events: none;
+}
+
+/* Flipping animation — quick scaleY squish for the flap motion */
+@keyframes flapFlick {
+  0%   { transform: scaleY(1);    filter: brightness(1); }
+  35%  { transform: scaleY(0.84); filter: brightness(0.78); }
+  72%  { transform: scaleY(1.05); filter: brightness(1.1); }
+  100% { transform: scaleY(1);    filter: brightness(1); }
+}
+.flap-cell.is-flipping {
+  animation: flapFlick 110ms ease-out;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flap-cell.is-flipping { animation: none; }
+}
+
+/* === CTA cluster — refined === */
+.opening-cta-cluster {
+  display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+  margin-top: -4px; padding: 0 2px;
 }
 .opening-start-btn {
-  padding: 16px 48px; border-radius: 22px; border: none; cursor: pointer;
-  background: linear-gradient(135deg, rgba(74,222,128,0.28), rgba(34,197,94,0.38));
-  border: 1px solid rgba(74,222,128,0.5);
-  color: rgba(255,255,255,0.97); font-size: 17px; font-weight: 700;
-  letter-spacing: 0.04em;
-  box-shadow: 0 2px 0 rgba(134,239,172,0.15) inset, 0 4px 16px rgba(0,0,0,0.3);
-  transition: all 0.2s;
+  position: relative;
+  padding: 15px 22px; border-radius: 16px; border: none; cursor: pointer;
+  background: linear-gradient(180deg, rgba(74,222,128,0.32) 0%, rgba(34,197,94,0.42) 100%);
+  border: 1px solid rgba(134,239,172,0.4);
+  color: rgba(255,255,255,0.98); font-family: inherit;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.18) inset,
+    0 -1px 0 rgba(0,0,0,0.2) inset,
+    0 3px 10px rgba(34,197,94,0.13),
+    0 2px 4px rgba(0,0,0,0.25);
+  transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
 }
-.opening-start-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
-.opening-how {
-  font-size: 13px; color: rgba(255,255,255,0.45); cursor: pointer;
-  text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s;
+.opening-start-btn .osb-main {
+  font-size: 16px; font-weight: 700; letter-spacing: 0.03em; line-height: 1.1;
 }
-.opening-how:hover { color: rgba(255,255,255,0.7); }
+.opening-start-btn .osb-sub {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9.5px; font-weight: 500; letter-spacing: 0.24em;
+  color: rgba(220,252,231,0.72); text-transform: uppercase;
+}
+.opening-start-btn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 -1px 0 rgba(0,0,0,0.2) inset,
+    0 5px 14px rgba(34,197,94,0.18),
+    0 2px 4px rgba(0,0,0,0.25);
+}
+.opening-start-btn:active { transform: translateY(0); }
+
 .opening-practice-btn {
-  padding: 12px 36px; border-radius: 22px; cursor: pointer;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.22);
-  color: rgba(255,255,255,0.75); font-size: 15px; font-weight: 600;
+  padding: 13px 20px; border-radius: 14px; cursor: pointer;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.78); font-size: 14px; font-weight: 600;
   letter-spacing: 0.04em; font-family: inherit;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 2px 8px rgba(0,0,0,0.2);
-  transition: all 0.2s;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+  text-align: center;
 }
-.opening-practice-btn:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.38); color: rgba(255,255,255,0.97); transform: translateY(-1px); }
+.opening-practice-btn:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.28);
+  color: rgba(255,255,255,0.95);
+  transform: translateY(-1px);
+}
+
+.opening-how {
+  font-size: 11.5px; color: rgba(255,255,255,0.42); cursor: pointer;
+  text-align: center; padding: 4px 0 2px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500;
+  transition: color 0.2s; text-decoration: none;
+  align-self: center; display: inline-block;
+}
+.opening-how:hover { color: rgba(255,255,255,0.85); }
 
 /* === Training mode screens === */
 .training-screen {
@@ -2464,22 +2663,53 @@ body::after {
         <span class="opc-name" id="openingPlayerName">You</span>
       </div>
       <button class="opening-settings-btn" onclick="showSettingsModal()" aria-label="Settings">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
     </div>
-    <div>
-      <div class="opening-pretitle opening-fade-up" style="animation-delay:0.05s;">A travel race</div>
-      <div class="opening-title opening-fade-up" style="animation-delay:0.15s;">Around the World</div>
-      <div class="opening-tagline opening-fade-up" style="animation-delay:0.28s;">Race opponents across the globe. First to the finish wins.</div>
+
+    <!-- Title block — placed first so it's the topmost visible element after the topbar -->
+    <div class="opening-title-block">
+      <div class="opening-pretitle opening-fade-up" style="animation-delay:0.15s;">
+        <span>Departures</span>
+      </div>
+      <h1 class="opening-title opening-fade-up" style="animation-delay:0.25s;">
+        Around the <span class="ot-italic">World</span>
+      </h1>
+      <p class="opening-tagline opening-fade-up" style="animation-delay:0.4s;">
+        Race three rivals across the globe.<br>Answer fast, fly far, finish first.
+      </p>
     </div>
-    <div class="opening-facts">
-      <div class="opening-fact opening-fade-up" style="animation-delay:0.42s;">Answer questions at each city to earn coins and progress.</div>
-      <div class="opening-fact opening-fade-up" style="animation-delay:0.54s;">Fly between cities using coins — the further you travel, the more it costs.</div>
+
+    <!-- Split-flap departure board — the hero -->
+    <div class="flap-board opening-fade-up" style="animation-delay:0.55s;" aria-hidden="true">
+      <div class="flap-board-chassis">
+        <div class="flap-board-screw flap-board-screw-tl"></div>
+        <div class="flap-board-screw flap-board-screw-tr"></div>
+        <div class="flap-board-screw flap-board-screw-bl"></div>
+        <div class="flap-board-screw flap-board-screw-br"></div>
+        <div class="flap-board-header">
+          <span class="fbh-flight">FLIGHT</span>
+          <span class="fbh-dest">DESTINATION</span>
+          <span class="fbh-status">STATUS</span>
+        </div>
+        <div class="flap-board-rows" id="flapBoardRows">
+          <!-- populated by JS -->
+        </div>
+      </div>
     </div>
-    <div class="opening-fade-up" style="animation-delay:0.82s;display:flex;flex-direction:column;align-items:center;gap:12px;">
-      <button class="opening-start-btn" onclick="handlePlayBtn()">Play</button>
-      <button class="opening-practice-btn" onclick="showTrainingDifficulty()">Practice</button>
-      <div class="opening-how" onclick="showHelp()">How to play</div>
+
+    <!-- CTA cluster -->
+    <div class="opening-cta-cluster opening-fade-up" style="animation-delay:0.85s;">
+      <button class="opening-start-btn" onclick="handlePlayBtn()" aria-label="Play">
+        <span class="osb-main">Begin the race</span>
+        <span class="osb-sub">Gate 1 · 4 seats</span>
+      </button>
+
+      <button class="opening-practice-btn" onclick="showTrainingDifficulty()" aria-label="Practice">
+        Practice mode
+      </button>
+
+      <a class="opening-how" onclick="showHelp()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showHelp();}">How to play</a>
     </div>
   </div>
 
@@ -2978,8 +3208,8 @@ body::after {
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="/Users/nigelholdgate/Desktop/question.js"></script>
-<script src="/Users/nigelholdgate/Desktop/route-rankings.js"></script>
+<script src="/question.js"></script>
+<script src="/route-rankings.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════
 // DATA CONSTANTS (city weights, coords, clues, flags, photos)
@@ -3986,6 +4216,255 @@ function refreshOpeningChip() {
   if (!chip) return;
   if (avatarEl) avatarEl.innerHTML = renderAvatarImg(profile.avatarId, 26);
   if (nameEl) nameEl.textContent = profile.name || 'You';
+  initFlapBoard();
+}
+
+// ════════════════════════════════════════════════════════════
+// Split-flap departure board
+// ════════════════════════════════════════════════════════════
+
+// Char set the flaps cycle through. Includes space, alphanumerics, dash, dot.
+const FLAP_CHARS = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.';
+
+// Column widths in cells (character slots).
+const FLAP_COLS = {
+  flight: 6,   // "AW 247"
+  dest:   9,   // longest: REYKJAVIK, CAPE TOWN, HONG KONG
+  status: 8    // longest: BOARDING, CHECK IN
+};
+
+// Real cities in the game with their IATA codes. Hand-curated to fit
+// the 9-char dest column and feel diverse across the world.
+const FLAP_DESTINATIONS = [
+  { city: 'TOKYO',     code: 'NRT' },
+  { city: 'REYKJAVIK', code: 'KEF' },
+  { city: 'CAPE TOWN', code: 'CPT' },
+  { city: 'ISTANBUL',  code: 'IST' },
+  { city: 'NEW YORK',  code: 'JFK' },
+  { city: 'HONG KONG', code: 'HKG' },
+  { city: 'DUBAI',     code: 'DXB' },
+  { city: 'LONDON',    code: 'LHR' },
+  { city: 'CAIRO',     code: 'CAI' },
+  { city: 'NAIROBI',   code: 'NBO' },
+  { city: 'BANGKOK',   code: 'BKK' },
+  { city: 'BEIJING',   code: 'PEK' },
+  { city: 'PARIS',     code: 'CDG' },
+  { city: 'SYDNEY',    code: 'SYD' },
+  { city: 'LIMA',      code: 'LIM' },
+  { city: 'MOSCOW',    code: 'SVO' },
+  { city: 'CHENGDU',   code: 'TFU' },
+  { city: 'ATHENS',    code: 'ATH' },
+  { city: 'DUBLIN',    code: 'DUB' },
+  { city: 'SHANGHAI',  code: 'PVG' },
+  { city: 'AUCKLAND',  code: 'AKL' },
+  { city: 'MADRID',    code: 'MAD' },
+  { city: 'BERLIN',    code: 'BER' },
+  { city: 'TORONTO',   code: 'YYZ' },
+  { city: 'TEHRAN',    code: 'IKA' }
+];
+
+// Statuses fitting in 8 cells. BOARDING is reserved for the first row only.
+const FLAP_STATUSES_NON_BOARDING = ['ON TIME', 'DELAYED', 'CHECK IN', 'ON TIME']; // ON TIME twice so it's more common
+
+// Generates "AW 247" style flight numbers
+function _flapFlightNum() {
+  const n = 100 + Math.floor(Math.random() * 899);
+  return 'AW ' + n;
+}
+
+// Pads a string to a fixed length (left-aligned for flight/dest, right-aligned isn't used)
+function _flapPad(s, len) {
+  s = (s || '').toUpperCase().slice(0, len);
+  return s + ' '.repeat(Math.max(0, len - s.length));
+}
+
+// Build cell-group HTML for a string padded to N cells
+function _flapCellGroupHTML(text, len, cssClass) {
+  let html = `<div class="flap-cell-group ${cssClass}">`;
+  const padded = _flapPad(text, len);
+  for (let i = 0; i < len; i++) {
+    const ch = padded[i];
+    html += `<span class="flap-cell" data-target="${ch}">${ch === ' ' ? '&nbsp;' : ch}</span>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+// Pick a random destination from the list — avoids picking one already in current rows
+function _flapRandomDestination(excludeCities) {
+  const available = FLAP_DESTINATIONS.filter(d => !excludeCities.includes(d.city));
+  return available[Math.floor(Math.random() * available.length)] || FLAP_DESTINATIONS[0];
+}
+
+// Build a single row data object
+function _flapBuildRowData(isBoarding, excludeCities) {
+  const dest = _flapRandomDestination(excludeCities);
+  return {
+    flight: _flapFlightNum(),
+    city: dest.city,
+    code: dest.code,
+    status: isBoarding ? 'BOARDING' : FLAP_STATUSES_NON_BOARDING[Math.floor(Math.random() * FLAP_STATUSES_NON_BOARDING.length)]
+  };
+}
+
+// Flip a single cell from its current char to a target char by cycling through
+// random intermediate chars. The number of intermediate steps is roughly
+// proportional to how "far" the new char is from the old, so distant flips
+// feel more dramatic and close ones feel quick.
+function _flapAnimateCell(cellEl, targetChar, startDelay) {
+  const currentChar = (cellEl.textContent || ' ').trim() || ' ';
+  if (currentChar === targetChar) return;
+  // Random length between 5 and 14 intermediate flips
+  const steps = 5 + Math.floor(Math.random() * 10);
+  let i = 0;
+  // Use a per-cell timer chain
+  setTimeout(function tick() {
+    if (!cellEl.isConnected) return;
+    cellEl.classList.add('is-flipping');
+    if (i < steps) {
+      // Random intermediate character
+      const ch = FLAP_CHARS[Math.floor(Math.random() * FLAP_CHARS.length)];
+      cellEl.textContent = ch === ' ' ? '\u00A0' : ch;
+      i++;
+      setTimeout(tick, 55 + Math.random() * 30);
+    } else {
+      // Final settle
+      cellEl.textContent = targetChar === ' ' ? '\u00A0' : targetChar;
+      setTimeout(() => cellEl.classList.remove('is-flipping'), 120);
+    }
+  }, startDelay);
+}
+
+// Flip an entire row to new content. Cells cascade left-to-right.
+function _flapFlipRow(rowEl, newData) {
+  const flightStr  = _flapPad(newData.flight, FLAP_COLS.flight);
+  const destStr    = _flapPad(newData.city,   FLAP_COLS.dest);
+  const statusStr  = _flapPad(newData.status, FLAP_COLS.status);
+  const fullStr    = flightStr + destStr + statusStr;
+
+  const allCells = rowEl.querySelectorAll('.flap-cell');
+  allCells.forEach((cell, i) => {
+    _flapAnimateCell(cell, fullStr[i], i * 35); // 35ms cascade across the row
+  });
+
+  // Toggle the 'is-boarding' state class for status row styling
+  if (newData.status === 'BOARDING') rowEl.classList.add('is-boarding');
+  else rowEl.classList.remove('is-boarding');
+}
+
+const FLAP_ROW_COUNT = 5;
+let _flapBoardState = null; // [{flight, city, code, status}, ...]
+let _flapBoardCycleTimer = null;
+let _flapTicksSinceBigFlip = 0;
+
+function initFlapBoard() {
+  const container = document.getElementById('flapBoardRows');
+  if (!container) return;
+  if (container.dataset.initialized === '1') return;
+  container.dataset.initialized = '1';
+
+  // Initial state — 5 rows. First row is always BOARDING; the rest get other statuses.
+  _flapBoardState = [];
+  const used = [];
+  for (let i = 0; i < FLAP_ROW_COUNT; i++) {
+    const row = _flapBuildRowData(i === 0, used);
+    _flapBoardState.push(row);
+    used.push(row.city);
+  }
+
+  // Build cells, initially all blank
+  container.innerHTML = '';
+  _flapBoardState.forEach((row, idx) => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'flap-row';
+    rowEl.dataset.rowIndex = idx;
+    rowEl.innerHTML =
+      _flapCellGroupHTML('', FLAP_COLS.flight, 'flap-flight') +
+      _flapCellGroupHTML('', FLAP_COLS.dest,   'flap-dest') +
+      _flapCellGroupHTML('', FLAP_COLS.status, 'flap-status');
+    container.appendChild(rowEl);
+  });
+
+  // After a short hold, run the initial flip-in for each row
+  setTimeout(() => {
+    const rows = container.querySelectorAll('.flap-row');
+    rows.forEach((rowEl, idx) => {
+      setTimeout(() => _flapFlipRow(rowEl, _flapBoardState[idx]), idx * 180);
+    });
+  }, 250);
+
+  // Schedule the first update — single-row tick at ~5.5s after initial reveal
+  _flapTicksSinceBigFlip = 0;
+  _scheduleNextFlapUpdate(6000);
+}
+
+// Self-rescheduling tick. Each call decides whether to do a single-row update
+// or a board-wide "schedule update" (big-flip), then schedules the next tick
+// with some random variance so the rhythm feels organic.
+function _scheduleNextFlapUpdate(delay) {
+  if (_flapBoardCycleTimer) clearTimeout(_flapBoardCycleTimer);
+  _flapBoardCycleTimer = setTimeout(() => {
+    const container = document.getElementById('flapBoardRows');
+    if (!container) return;
+
+    // Trigger a big-flip every ~5-6 single-row ticks (so roughly every 30s)
+    const doBigFlip = _flapTicksSinceBigFlip >= 5 && Math.random() < 0.6;
+
+    if (doBigFlip) {
+      _flapDoBigFlip(container);
+      _flapTicksSinceBigFlip = 0;
+      // Hold a moment after the big flip before resuming single-row updates
+      _scheduleNextFlapUpdate(9000 + Math.random() * 3000);
+    } else {
+      _flapDoSingleRowFlip(container);
+      _flapTicksSinceBigFlip++;
+      // Vary the interval between 4.5s and 6.5s for organic rhythm
+      _scheduleNextFlapUpdate(4500 + Math.random() * 2000);
+    }
+  }, delay);
+}
+
+// Flip one random non-boarding row to a new destination
+function _flapDoSingleRowFlip(container) {
+  const rowIdx = 1 + Math.floor(Math.random() * (FLAP_ROW_COUNT - 1));
+  const rowEl = container.querySelector(`[data-row-index="${rowIdx}"]`);
+  if (!rowEl) return;
+  const used = _flapBoardState.map(r => r.city);
+  const newData = _flapBuildRowData(false, used);
+  _flapBoardState[rowIdx] = newData;
+  _flapFlipRow(rowEl, newData);
+}
+
+// Flip all non-boarding rows simultaneously — the dramatic "schedule update" moment.
+// Each row starts its flip with a staggered delay so the motion cascades down the board.
+function _flapDoBigFlip(container) {
+  // Brief pulse on the chassis to mark the moment
+  const chassis = container.closest('.flap-board-chassis');
+  if (chassis) {
+    chassis.classList.add('is-updating');
+    setTimeout(() => chassis.classList.remove('is-updating'), 1800);
+  }
+
+  // Pick fresh destinations for all non-boarding rows. Keep the boarding row.
+  const used = [_flapBoardState[0].city]; // preserve boarding row's city in the exclusion set
+  for (let i = 1; i < FLAP_ROW_COUNT; i++) {
+    const newData = _flapBuildRowData(false, used);
+    _flapBoardState[i] = newData;
+    used.push(newData.city);
+  }
+
+  // Cascade the row flips with 180ms between rows
+  for (let i = 1; i < FLAP_ROW_COUNT; i++) {
+    const rowEl = container.querySelector(`[data-row-index="${i}"]`);
+    if (!rowEl) continue;
+    const delay = (i - 1) * 180;
+    setTimeout(() => _flapFlipRow(rowEl, _flapBoardState[i]), delay);
+  }
+}
+
+// Clean up the timer when the opening screen is hidden, restart when shown
+function stopFlapBoard() {
+  if (_flapBoardCycleTimer) { clearTimeout(_flapBoardCycleTimer); _flapBoardCycleTimer = null; }
 }
 
 function renderAvatarImg(avatarId, size) {
