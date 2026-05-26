@@ -3208,8 +3208,8 @@ body::after {
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="/question.js"></script>
-<script src="/route-rankings.js"></script>
+<script src="./question.js"></script>
+<script src="./route-rankings.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════
 // DATA CONSTANTS (city weights, coords, clues, flags, photos)
@@ -3714,25 +3714,25 @@ function buildUnsplashUrl(photoId) {
 
 // Opponent avatar colours and initials — swap background-image for real avatars later
 const OPP_STYLES = {
-  'Luca':  { color: '#3a9a4a', bg: '#2a7a3a99', country: 'Italy',    accuracy: 0.80, img: '/Users/nigelholdgate/Desktop/Avatars/Luca.jpeg' },
-  'Mei':   { color: '#f07820', bg: '#f0782099', country: 'China',    accuracy: 0.80, img: '/Users/nigelholdgate/Desktop/Avatars/Mei.jpeg' },
-  'Mateo': { color: '#4ab865', bg: '#2e8a4a', country: 'Colombia', accuracy: 0.80, img: '/Users/nigelholdgate/Desktop/Avatars/Mateo.jpeg' },
-  'Ali': { color: '#e67255', bg: '#e6725599', country: 'Iran', accuracy: 0.75, img: '/Users/nigelholdgate/Desktop/Avatars/Ali.jpeg' },
-  'Amina': { color: '#ffe678', bg: '#ffe67899', country: 'Morocco', accuracy: 0.55, img: '/Users/nigelholdgate/Desktop/Avatars/Amina.jpeg' },
-  'Daria': { color: '#e69e55', bg: '#e69e5599', country: 'Russia', accuracy: 0.75, img: '/Users/nigelholdgate/Desktop/Avatars/Daria.jpeg' },
-  'Felipe': { color: '#55e6e3', bg: '#55e6e399', country: 'Chile', accuracy: 0.7, img: '/Users/nigelholdgate/Desktop/Avatars/Felipe.jpeg' },
-  'Isuri': { color: '#eba751', bg: '#eba75199', country: 'Sri Lanka', accuracy: 0.75, img: '/Users/nigelholdgate/Desktop/Avatars/Isuri.jpeg' },
-  'Jack': { color: '#95ef8f', bg: '#95ef8f99', country: 'Australia', accuracy: 0.65, img: '/Users/nigelholdgate/Desktop/Avatars/Jack.jpeg' },
-  'Kwame': { color: '#8e65e9', bg: '#8e65e999', country: 'Ghana', accuracy: 0.55, img: '/Users/nigelholdgate/Desktop/Avatars/Kwame.jpeg' },
-  'Melokuhle': { color: '#55e66e', bg: '#55e66e99', country: 'South Africa', accuracy: 0.65, img: '/Users/nigelholdgate/Desktop/Avatars/Melokuhle.jpeg' },
-  'Mere': { color: '#ca8fef', bg: '#ca8fef99', country: 'Fiji', accuracy: 0.55, img: '/Users/nigelholdgate/Desktop/Avatars/Mere.jpeg' },
-  'Raj': { color: '#8fcaef', bg: '#8fcaef99', country: 'India', accuracy: 0.6, img: '/Users/nigelholdgate/Desktop/Avatars/Raj.jpeg' },
-  'Sofia': { color: '#ef908f', bg: '#ef908f99', country: 'USA', accuracy: 0.7, img: '/Users/nigelholdgate/Desktop/Avatars/Sofia.jpeg' },
-  'Toma': { color: '#e6555a', bg: '#e6555a99', country: 'Croatia', accuracy: 0.7, img: '/Users/nigelholdgate/Desktop/Avatars/Toma.jpeg' },
-  'Yuto': { color: '#a8c4d4', bg: '#a8c4d499', country: 'Japan', accuracy: 0.6, img: '/Users/nigelholdgate/Desktop/Avatars/Yuto.jpeg' },
-  'Freya': { color: '#e65c55', bg: '#e65c5599', country: 'Norway', accuracy: 0.6, img: '/Users/nigelholdgate/Desktop/Avatars/Freya.jpeg' },
-  'Chloe': { color: '#d4aa6e', bg: '#d4aa6e99', country: 'Canada', accuracy: 0.6, img: '/Users/nigelholdgate/Desktop/Avatars/Chloe.jpeg' },
-  'James': { color: '#a8adb8', bg: '#a8adb899', country: 'England', accuracy: 0.7, img: '/Users/nigelholdgate/Desktop/Avatars/James.jpeg' },
+  'Luca':  { color: '#3a9a4a', bg: '#2a7a3a99', country: 'Italy',    accuracy: 0.80, img: './avatars/Luca.jpeg' },
+  'Mei':   { color: '#f07820', bg: '#f0782099', country: 'China',    accuracy: 0.80, img: './avatars/Mei.jpeg' },
+  'Mateo': { color: '#4ab865', bg: '#2e8a4a', country: 'Colombia', accuracy: 0.80, img: './avatars/Mateo.jpeg' },
+  'Ali': { color: '#e67255', bg: '#e6725599', country: 'Iran', accuracy: 0.75, img: './avatars/Ali.jpeg' },
+  'Amina': { color: '#ffe678', bg: '#ffe67899', country: 'Morocco', accuracy: 0.55, img: './avatars/Amina.jpeg' },
+  'Daria': { color: '#e69e55', bg: '#e69e5599', country: 'Russia', accuracy: 0.75, img: './avatars/Daria.jpeg' },
+  'Felipe': { color: '#55e6e3', bg: '#55e6e399', country: 'Chile', accuracy: 0.7, img: './avatars/Felipe.jpeg' },
+  'Isuri': { color: '#eba751', bg: '#eba75199', country: 'Sri Lanka', accuracy: 0.75, img: './avatars/Isuri.jpeg' },
+  'Jack': { color: '#95ef8f', bg: '#95ef8f99', country: 'Australia', accuracy: 0.65, img: './avatars/Jack.jpeg' },
+  'Kwame': { color: '#8e65e9', bg: '#8e65e999', country: 'Ghana', accuracy: 0.55, img: './avatars/Kwame.jpeg' },
+  'Melokuhle': { color: '#55e66e', bg: '#55e66e99', country: 'South Africa', accuracy: 0.65, img: './avatars/Melokuhle.jpeg' },
+  'Mere': { color: '#ca8fef', bg: '#ca8fef99', country: 'Fiji', accuracy: 0.55, img: './avatars/Mere.jpeg' },
+  'Raj': { color: '#8fcaef', bg: '#8fcaef99', country: 'India', accuracy: 0.6, img: './avatars/Raj.jpeg' },
+  'Sofia': { color: '#ef908f', bg: '#ef908f99', country: 'USA', accuracy: 0.7, img: './avatars/Sofia.jpeg' },
+  'Toma': { color: '#e6555a', bg: '#e6555a99', country: 'Croatia', accuracy: 0.7, img: './avatars/Toma.jpeg' },
+  'Yuto': { color: '#a8c4d4', bg: '#a8c4d499', country: 'Japan', accuracy: 0.6, img: './avatars/Yuto.jpeg' },
+  'Freya': { color: '#e65c55', bg: '#e65c5599', country: 'Norway', accuracy: 0.6, img: './avatars/Freya.jpeg' },
+  'Chloe': { color: '#d4aa6e', bg: '#d4aa6e99', country: 'Canada', accuracy: 0.6, img: './avatars/Chloe.jpeg' },
+  'James': { color: '#a8adb8', bg: '#a8adb899', country: 'England', accuracy: 0.7, img: './avatars/James.jpeg' },
 };
 
 const ENDPOINT_EXCLUDED  = new Set(["Honolulu","Papeete","Perth","Suva","Anchorage"]);
@@ -4529,7 +4529,7 @@ function renderAvGrid() {
   grid.innerHTML = AVATAR_ORDER.map(av => {
     const isSelected = av.id === _avPendingId;
     const imgHtml = av.isStar
-      ? `<img src="/Users/nigelholdgate/Desktop/Avatars/star_avatar.jpeg" alt="You" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">`
+      ? `<img src="./avatars/star_avatar.jpeg" alt="You" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">`
       : (() => {
           const style = OPP_STYLES[av.id] || {};
           return style.img
